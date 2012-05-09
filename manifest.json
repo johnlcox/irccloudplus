@@ -1,6 +1,6 @@
 {
 	"name": "irccloud+",
-	"version": "0.3",
+	"version": "0.4",
 	"manifest_version": 2,
 	"description": "Irccloud companion and helper",
 	"browser_action": {
@@ -21,7 +21,7 @@
    		"http://*/*",
 		"https://*/*",
 		"tabs",
-		"background",
+		"storage",
 		"notifications"
  	],
 	"content_scripts": [
@@ -30,5 +30,8 @@
 			"run_at": "document_idle",
 			"js": ["assets/js/jquery.min.js", "inject/js/background.js"]
 		}
+	],
+	"web_accessible_resources": [
+		"assets/sounds/alert.mp3"
 	]
 }
