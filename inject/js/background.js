@@ -107,7 +107,7 @@ function getSettings() {
  * Show popup
  */
 function popUp(title, msg, chan) {
-	var icon = 'https://irccloud.com/static/48x48.png';
+	var icon = chrome.extension.getURL('assets/images/48x48.png');
 	
 	var notification = webkitNotifications.createNotification(
 		 icon,
