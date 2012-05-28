@@ -1,6 +1,6 @@
 {
 	"name": "irccloud+",
-	"version": "0.4",
+	"version": "0.5",
 	"manifest_version": 2,
 	"description": "Irccloud companion and helper",
 	"browser_action": {
