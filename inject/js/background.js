@@ -23,8 +23,9 @@ window.addEventListener('blur', function() {
 
 main();
 function main() {
-
-	var socket = new WebSocket('wss://irccloud.com');
+	var protocol = window.location.protocol === "https:" ? "wss" : "ws";
+	
+	var socket = new WebSocket(protocol + '://' + window.location.host);
 	socket.onopen = function(){  
 		getSettings();
 	}
@@ -98,7 +99,7 @@ function messageHandler(msg) {
  */
 function getSettings() {
 	chrome.extension.sendRequest({action: "getSettings"}, function(res) {
-		//console.log('setting from background', res)
+		console.log('setting from background', res)
 		$.extend(prefs, res);
 	});	
 }
@@ -107,8 +108,7 @@ function getSettings() {
  * Show popup
  */
 function popUp(title, msg, chan) {
-	var icon = chrome.extension.getURL('assets/images/48x48.png');
-	
+	var icon = chrome.extension.getURL('assets/images/icon48x48.png');
 	var notification = webkitNotifications.createNotification(
 		 icon,
 		 title,

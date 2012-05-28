@@ -1,6 +1,6 @@
 {
 	"name": "irccloud+",
-	"version": "0.5",
+	"version": "0.6",
 	"manifest_version": 2,
 	"description": "Irccloud companion and helper",
 	"browser_action": {
@@ -26,12 +26,13 @@
  	],
 	"content_scripts": [
 		{
-			"matches": ["https://irccloud.com/", "https://alpha.irccloud.com/"],
+			"matches": ["https://*.irccloud.com/"],
 			"run_at": "document_idle",
 			"js": ["assets/js/jquery.min.js", "inject/js/background.js"]
 		}
 	],
 	"web_accessible_resources": [
-		"assets/sounds/alert.mp3"
+		"assets/sounds/alert.mp3",
+		"assets/images/icon48x48.png"
 	]
 }
