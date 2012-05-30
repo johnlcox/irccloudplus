@@ -1,2 +1,3 @@
 #!/bin/bash
-zip irccloudplus *  -x \.git -x \*.zip
+rm irccloudplus/irccloudplus.zip
+zip irccloudplus/irccloudplus irccloudplus/*  -r -x \.git -x \*.zip
