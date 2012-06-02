@@ -62,8 +62,13 @@ function messageHandler(msg) {
 			if (channelFocused(msg.chan)) {
 				return true;
 			}
-			if (msg.highlight && prefs.playalert) {
+			//dont show popup - irccloud handels that
+			//first case is for regular channel messages, second is for pm's
+			if ((msg.highlight || msg.chan == msg.from) 
+				&& prefs.playalert
+			) {
 				prefs.beep.play();
+			//handel channel-wide notifications
 			} else if (matchedChannel(msg.chan)) {
 				if (msg.type == 'buffer_msg') {
 					popUp(title = 'From: ' 
