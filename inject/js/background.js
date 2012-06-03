@@ -59,14 +59,19 @@ function messageHandler(msg) {
 		case 'buffer_msg':
 		case 'buffer_me_msg':
 			//exit if the tab isnt hidden. We only alert when its not visable
+			//a channel is a msg.chan that has one of these at the begining
+			//of the name
+			//for pm's, we ensure that the first char of the chans name 
+			//doesnt begin with anything in chan_prefix
+			var chan_prefix = ['&', '#', '!', '+', '.', '-'];
+			var is_pm = (chan_prefix.indexOf(msg.chan.charAt(0)) < 0);
+			
 			if (channelFocused(msg.chan)) {
 				return true;
 			}
 			//dont show popup - irccloud handels that
 			//first case is for regular channel messages, second is for pm's
-			if ((msg.highlight || msg.chan == msg.from) 
-				&& prefs.playalert
-			) {
+			if ((msg.highlight || is_pm) && prefs.playalert) {
 				prefs.beep.play();
 			//handel channel-wide notifications
 			} else if (matchedChannel(msg.chan)) {
