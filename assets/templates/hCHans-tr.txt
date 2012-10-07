@@ -1,0 +1,9 @@
+<tr id="hChans-tr">
+	<th>
+		<label for="<%= id %>"><%= label %></label>
+	</th>
+	<td>
+		<select multiple id="<%= id %>">
+		</select>
+	</td>
+</tr>

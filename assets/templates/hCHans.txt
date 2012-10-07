@@ -1,0 +1,7 @@
+<% _.each(channels, function(chan){                                     
+		%> <option value="<%= chan.id %>"
+			data-type="<%= chan.type %>"                                    
+			data-parent="<%= chan.parent %>">                               
+				<%= chan.name %>                                            
+		</option><%                                                     
+}) %>      

@@ -14,9 +14,8 @@
 			},
 	"background": {
 		"page": "background/background.html",
-		"script": ["background/background.js"]
+		"script": ["assets/js/jquery-1.8.3.js", "background/background.js"]
 	},
-	"options_page": "opts/options.html",
  	"permissions": [
    		"http://*/*",
 		"https://*/*",
@@ -27,12 +26,12 @@
 	"content_scripts": [
 		{
 			"matches": ["https://*.irccloud.com/"],
-			"run_at": "document_idle",
-			"js": ["assets/js/jquery.min.js", "inject/js/background.js"]
+			"run_at": "document_end",
+			"js": ["content_script/init.js"]
 		}
 	],
 	"web_accessible_resources": [
-		"assets/sounds/alert.mp3",
-		"assets/images/icon48x48.png"
+		"assets/*",
+		"modules/*"
 	]
 }
