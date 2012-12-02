@@ -10,7 +10,7 @@ require.config({
 require(['mixins/init'], function(){});
 
 //start chan_highlights
-require(['chan_highlights/init']);
+require(['chan_highlights/init', 'mixins/init']);
 
 //register events
 require(['events/init']);
