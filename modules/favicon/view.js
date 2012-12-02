@@ -5,60 +5,100 @@ define([], function (){
 		linkOrig: $('head').find('link[rel=icon]').clone(),
 		link: $('head').find('link[rel=icon]'),
 		img: document.createElement('img'),
+		newInCurrentBuffer: false,
+		defaultMsg: 0,
+		msg: 0,
 		initialize: function () {
 			this.ctx = this.canvas.getContext('2d');
 			this.sessionview.model.buffers.bind('unseenHighlightChange', 
 				this.onUnseenHighlightChange, this);
-						
+			this.sessionview.model.buffers.bind('unseenChange', 
+				this.onUnseenChange, this);
+			this.bind('setFavicon', this.setFavicon, this);
 			//img element and initial render
 			_.extend(this.img, {
 				src: this.link.attr('href'),
 				onload: function() {
-					this.drawFavicon(0);
+					this.trigger('setFavicon');
 				}
 			}, this);
 		},
 		onUnseenHighlightChange: function (buffer) {
-			this.drawFavicon(buffer.unseenHighlights.length);
+			this.msg = buffer.unseenHighlights.length;
+			this.trigger('setFavicon');
 		},
-		drawFavicon: function (i) {
-			//limit string to 3 characters, default to 0
-			if (typeof i != 'string' && typeof i.toString == 'function') {
-				i = i.toString();
+		onUnseenChange: function (a) {
+			if (a.hasUnseen() && this.isFromSelectedBuffer(a)) {
+				this.newInCurrentBuffer = true;
 			} else {
-				console.log(i, ' is not a valid type for this opperation');
-				i = '';
+				this.newInCurrentBuffer = false;
 			}
-			i = i.substring(0, 3);
+			this.trigger('setFavicon');
+		},
+		isFromSelectedBuffer: function (a) {
+			return a.get('bid') == a.session.get('last_selected_bid');
+		},
+		getMsg: function () {
+			msg = this.msg;
+			if (typeof msg != 'string' && typeof msg.toString == 'function') {
+				msg = msg.toString();
+			} else {
+				console.log(msg, ' is not a valid type for getFormatedMsg');
+				msg = this.defaultMsg;
+			}
+			return msg.substring(0, 3);
+		},
+		getFont: function () {
+			return 'Helvetica Neue, Arial, sans-serif';
+		},
+		getFontSize: function () {
+			return this.getMsg().length == 3 ? 9 : 11;
+		},
+		getMsgFormating: function () {
+			return (this.newInCurrentBuffer ? 'Bold ' : ' ') + 
+					this.getFontSize() + 'px ' + 
+					this.getFont();
+		},
+		getTextCords: function () {
+			c = {};
+			c.y = 16;
+
+			switch (this.getMsg().length) {
+				case 1:
+					c.x = 9;
+					break;
+				case 2:
+					c.x = 4;
+					break;
+				case 3:
+					c.x = 0;
+					break;	
+				default:
+					c.x = 9;
+					break;
+			}
+
+			return c;
+			
+		},
+		getIcon: function() {
+			msg = this.getMsg();
+			cords = this.getTextCords();
 			c = this.canvas;
 			c.height = c.width = 16;
 			ctx = c.getContext('2d');
 			ctx.drawImage(this.img, 0, 0);
-			y = '16';
-			fontsize = 11;
-			x = 9;
-
-			switch (i.length) {
-				case 1:
-					x = 9;
-					break;
-				case 2:
-					x = 4;
-					break;
-				case 3:
-					x = 0;
-					fontsize = 9;
-					break;	
-			}
-
-			ctx.font = fontsize + 'px Helvetica Neue, Arial, sans-serif';
+			ctx.font = this.getMsgFormating();
 			ctx.lineWidth = 3;
 			ctx.strokeStyle = "#fff";
-			ctx.strokeText(i, x, y);
+			ctx.strokeText(msg, cords.x, cords.y);
 			ctx.fillStyle = '#111';
-			ctx.fillText(i, x, y);
+			ctx.fillText(msg, cords.x, cords.y);
 
-			this.link.attr('href', c.toDataURL('image/png'));
+			return c.toDataURL('image/png');
+		},
+		setFavicon: function () {
+			this.link.attr('href', this.getIcon());
 		}
 		
 	});

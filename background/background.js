@@ -27,27 +27,6 @@ chrome.browserAction.onClicked.addListener(function(tab) {
 	});
 });
 
-/**
- * load setting from storage and pass them to a callback
- */
-function loadSettings(callback) {
-	set = {};
-	for (var name in localStorage) {
-		switch (name) {
-			case 'playalert':
-				set[name] = (localStorage[name] == 'true');
-				break;
-			case 'chan_highlight':
-				try {
-					set[name] = JSON.parse(localStorage[name]);	
-				}	catch (e) {
-					set[name] = {}
-				}
-				break;
-		}
-	}
-	callback(set);
-}
 
 //set up connection to content script
 var bg = {
@@ -61,18 +40,18 @@ var bg = {
 			$.each(tabs, function(x, tab) {
 				
 				//if we dont have a port open to them yet
-				if (!that.pages[tab.id]) {
+				if (!this.pages[tab.id]) {
 					
 					//open port & setup listeners
-					that.pages[tab.id] =  
+					this.pages[tab.id] =  
 							chrome.tabs.connect(tab.id, {name: "ircp"});
 					
-					that.pages[tab.id].onDisconnect.addListener(function(port) {
+					this.pages[tab.id].onDisconnect.addListener(function(port) {
 						that.onDisconnect(port);
 					});
 				}
-			});
-		});
+			}.bind(this));
+		}.bind(this));
 	},
 	onDisconnect: function(port) {
 		var that = this;
@@ -84,17 +63,23 @@ var bg = {
 		});
 	},
 	msg_handler: function(msg) {
-		//console.log('bg.msg_handler()', msg);
+	//	console.log('bg.msg_handler()', msg);
 		if (typeof msg.type === 'undefined') {
 			return false;
 		}
-
+		
 		switch (msg.type) {
 			case 'storageDump':
 				this.save(msg);
 				break;
 			case 'getDump':
 				this.sendDump(msg.data);
+				break;
+			case 'migration':
+				this.migrationCheck();
+				break;
+			case 'postMigration':
+				this.postMigration(msg.data);
 				break;
 			default:
 				break;
@@ -112,45 +97,72 @@ var bg = {
 		});
 	},
 	sendDump: function (key) {
-		var that = this;
 		chrome.storage.sync.get(function(d){
 			data = key ? d[key] : d;
-			that.send({
+			this.send({
 				type: 'storageDump',
 				data: d,
 				src: 'background',
 				key: key
 			});
-		});
+		}.bind(this));
 	},
 	//receive messages from content script
 	init: function() {
-		var that = this;
 		//connect on startup
 		this.connect();
 		
 		chrome.extension.onConnect.addListener(function(port) {
 			//ensure were connected to all tabs every time we get a listener
-			that.connect();
+			this.connect();
 			
 			//listen to messages from content script
 			port.onMessage.addListener(function(msg) {
-				that.msg_handler(msg);
-			});
-		});
+				this.msg_handler(msg);
+			}.bind(this));
+		}.bind(this));
 
 		//add listener for data changes
 		chrome.storage.onChanged.addListener(function(changes, name){
 			switch (name) {
 				case 'sync':
-						that.sendDump();
+						this.sendDump();
 					break;
 				default:
 					break;
 			}
-		});
+		}.bind(this));
+
+	},
+	migrationCheck: function () {
+		if (typeof localStorage.chan_highlight != 'undefined') {
+			this.send({
+				type: 'migration',
+				data: {
+					version: 13,
+					data: {
+						chan_highlight: JSON.parse(localStorage.chan_highlight),
+						playalert: JSON.parse(localStorage.playalert)
+					}
+				},
+				src: 'background',
+				key: 'hChans'
+			});
+		}	
+	},
+	postMigration: function (version) {
+		console.log('cleanup for', version);
+		switch (version) {
+			case 13:
+				localStorage.removeItem('chan_highlight');
+				localStorage.removeItem('playalert');
+				break;
+			default:
+				break;
+		}
 	}
 };
 
 //start receiving from content script
 bg.init();
+

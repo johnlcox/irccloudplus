@@ -1,7 +1,8 @@
 define(['./collections', 
+		'mixins/connections',
 		'text!templates/hCHans.txt', 
 		'text!templates/hChans-tr.txt'
-		], function(collection, hChans, hChans_tr) {
+		], function(collection, m, hChans, hChans_tr) {
 	return Backbone.View.extend({
 		el: '#hChans-tr',
 		session: window.SESSION,
@@ -19,7 +20,7 @@ define(['./collections',
 			this.session.connections.on('add', this.render, this);
 			this.session.connections.on('remove', this.render, this);
 			this.collection.on('reset', this.renderhChans, this);
-			this.collection.on('change', this.rendehChans, this);
+			this.collection.on('change', this.renderhChans, this);
 			$('#settings a').bind('click', _.bind(this.renderhChans, this));
 			$('#hChans').bind('mousedown', _.bind(this.hChansToggel, this));
 			$('#hChans').bind('click', _.bind(this.hChansSave, this));
@@ -38,22 +39,25 @@ define(['./collections',
 			el = $(element.target);
 			//console.log('hChans save called', el.val(), el.is(':selected'));
 			el.is(':selected') ? this.collection.add({id: el.val()}) 
-								: this.collection.remove({id: el.val()}) 
+								: this.collection.remove({id: el.val()});
 		
 			if (this.getIsServer(el.val())) {
-				_.each(this.getBuffers()[el.val()].channels, function(name, id) {
-					this.collection.remove({id: id});
+				var servers = this.session.connections.listServers();
+				_.each(servers[el.val()].channels, 
+					function(name, id) {
+						this.collection.remove({id: id});
 				}, this);
 			}
 		
 			this.renderhChans();
 		},
 		renderhChans: function() {
+			//console.log(window.requirejs.s.contexts._.defined);
 			var data = {
-				channels: _.filter(this.session.connections.listFlatServer(), 
+				channels: _.filter(this.session.connections.listServersFlat(), 
 						this.getIsViewable, this)
 			};
-		
+
 			$('#hChans').html(_.template(hChans, data));
 			$('#hChans').val(this.collection.pluck('id'));
 		},

@@ -22,7 +22,7 @@ define([], function(){
 				return list;
 			}
 		},
-		listFlatServer: function (callback) {
+		listServersFlat: function (callback) {
 			var list = {}, count = 0;
 			this.each(function(server){
 				list[count++] = {
@@ -36,7 +36,7 @@ define([], function(){
 					server.buffers.each(function(chan){
 						if (chan.get('buffer_type') == 'channel') {
 							list[count++] = {
-								name: '&#160&#160&#160' + chan.get('name'),
+								name: chan.get('name'),
 								id: chan.id,
 								type: 'channel',
 								parent: server.id
@@ -52,5 +52,5 @@ define([], function(){
 				return list;
 			}
 		}
-	}
+	};
 });

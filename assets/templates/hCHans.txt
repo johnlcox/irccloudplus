@@ -2,6 +2,9 @@
 		%> <option value="<%= chan.id %>"
 			data-type="<%= chan.type %>"                                    
 			data-parent="<%= chan.parent %>">                               
+				<% if (chan.type == 'channel') { %>
+					&#160&#160&#160
+				<% } %>
 				<%= chan.name %>                                            
 		</option><%                                                     
 }) %>      

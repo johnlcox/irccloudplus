@@ -7,7 +7,7 @@ require.config({
 });
 
 //prosses mixins
-require(['mixins/init']);
+require(['mixins/init'], function(){});
 
 //start chan_highlights
 require(['chan_highlights/init']);
