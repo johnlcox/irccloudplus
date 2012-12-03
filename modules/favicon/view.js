@@ -1,6 +1,7 @@
 define([], function (){
 	var favicon = Backbone.View.extend({
 		sessionview: window.SESSIONVIEW,
+		session: window.SESSION,
 		canvas: document.createElement('canvas'),
 		linkOrig: $('head').find('link[rel=icon]').clone(),
 		link: $('head').find('link[rel=icon]'),
@@ -24,8 +25,18 @@ define([], function (){
 			}, this);
 		},
 		onUnseenHighlightChange: function (buffer) {
-			this.msg = buffer.unseenHighlights.length;
+			this.msg = this.getUnseenHighlightCount();
 			this.trigger('setFavicon');
+		},
+		getUnseenHighlightCount: function() {
+			return _.reduce(
+					_.map(this.session.unseenBuffers.models, 
+						function (m){
+							return m.unseenHighlightCount();
+					}), 
+					function(total, count){
+						return total + count;
+				}, 0);
 		},
 		onUnseenChange: function (a) {
 			if (a.hasUnseen() && this.isFromSelectedBuffer(a)) {
@@ -42,7 +53,7 @@ define([], function (){
 			msg = this.msg;
 			if (typeof msg != 'string' && typeof msg.toString == 'function') {
 				msg = msg.toString();
-			} else {
+			} else if(typeof msg != 'string') {
 				console.log(msg, ' is not a valid type for getFormatedMsg');
 				msg = this.defaultMsg;
 			}
