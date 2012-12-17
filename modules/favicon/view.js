@@ -63,7 +63,7 @@ define([], function (){
 			return 'Helvetica Neue, Arial, sans-serif';
 		},
 		getFontSize: function () {
-			return this.getMsg().length == 3 ? 9 : 11;
+			return (this.getMsg().length == 3 ? 9 : 11) * this.getPixleRation();
 		},
 		getMsgFormating: function () {
 			return (this.newInCurrentBuffer ? 'Bold ' : ' ') + 
@@ -72,7 +72,7 @@ define([], function (){
 		},
 		getTextCords: function () {
 			c = {};
-			c.y = 16;
+			c.y = 16 * this.getPixleRation();
 
 			switch (this.getMsg().length) {
 				case 1:
@@ -88,17 +88,21 @@ define([], function (){
 					c.x = 9;
 					break;
 			}
-
+			c.x = c.x * this.getPixleRation();
 			return c;
 			
+		},
+		getPixleRation: function () {
+			return window.devicePixelRatio;
 		},
 		getIcon: function() {
 			msg = this.getMsg();
 			cords = this.getTextCords();
 			c = this.canvas;
-			c.height = c.width = 16;
+			size = 16 * this.getPixleRation();
+			c.height = c.width = size;
 			ctx = c.getContext('2d');
-			ctx.drawImage(this.img, 0, 0);
+			ctx.drawImage(this.img, 0, 0, size, size);
 			ctx.font = this.getMsgFormating();
 			ctx.lineWidth = 3;
 			ctx.strokeStyle = "#fff";
